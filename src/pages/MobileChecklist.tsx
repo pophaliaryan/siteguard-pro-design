@@ -12,11 +12,13 @@ import {
   AlertCircle,
   Send
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 const MobileChecklist = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const site = location.state?.site;
   const [checklistItems, setChecklistItems] = useState({
     safety_equipment: false,
     site_secured: false,
@@ -59,7 +61,7 @@ const MobileChecklist = () => {
           </Button>
           <div className="text-center flex-1">
             <h1 className="text-lg font-heading font-bold text-foreground">Site Inspection</h1>
-            <p className="text-xs text-muted-foreground font-body">Downtown Tower - Phase 2</p>
+            <p className="text-xs text-muted-foreground font-body">{site?.name || "Select a site"}</p>
           </div>
           <Button variant="ghost" size="sm">
             <FileText className="h-5 w-5" />

@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { RoleCard } from "@/components/RoleCard";
 import { Shield, Users, ClipboardCheck } from "lucide-react";
 import heroImage from "@/assets/hero-construction.jpg";
+import { useRole } from "@/contexts/RoleContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setRole } = useRole();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   const roles = [
@@ -31,7 +33,7 @@ const Login = () => {
 
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
-    // Simulate login delay
+    setRole(roleId as "admin" | "manager" | "representative");
     setTimeout(() => {
       navigate("/dashboard");
     }, 500);
