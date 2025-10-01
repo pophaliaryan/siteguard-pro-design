@@ -114,7 +114,7 @@ const AdminDashboard = () => {
               <Users className="mr-2 h-4 w-4" />
               Users
             </Button>
-            <Button variant="outline" size="sm" onClick={() => toast({ title: "Settings", description: "Settings panel coming soon" })}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </Button>

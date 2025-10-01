@@ -11,7 +11,9 @@ import MobileChecklist from "./pages/MobileChecklist";
 import SiteSelection from "./pages/SiteSelection";
 import GeofenceManager from "./pages/GeofenceManager";
 import Reports from "./pages/Reports";
+import ReportDetail from "./pages/ReportDetail";
 import UserManagement from "./pages/UserManagement";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,7 +33,9 @@ const App = () => (
             <Route path="/mobile-checklist" element={<MobileChecklist />} />
             <Route path="/geofence-manager" element={<GeofenceManager />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/report/:id" element={<ReportDetail />} />
             <Route path="/user-management" element={<UserManagement />} />
+            <Route path="/settings" element={<Settings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

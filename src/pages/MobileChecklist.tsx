@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -10,7 +10,9 @@ import {
   Camera, 
   FileText,
   AlertCircle,
-  Send
+  Send,
+  X,
+  Plus
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -19,6 +21,8 @@ const MobileChecklist = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const site = location.state?.site;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [checklistItems, setChecklistItems] = useState({
     safety_equipment: false,
     site_secured: false,
@@ -26,6 +30,10 @@ const MobileChecklist = () => {
     waste_managed: false,
     equipment_operational: false,
   });
+  
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [issues, setIssues] = useState<Array<{priority: string, description: string}>>([]);
+  const [currentIssue, setCurrentIssue] = useState({ priority: "", description: "" });
 
   const handleToggle = (key: string) => {
     setChecklistItems(prev => ({
@@ -34,9 +42,50 @@ const MobileChecklist = () => {
     }));
   };
 
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            setPhotos(prev => [...prev, e.target!.result as string]);
+            toast.success("Photo captured!", {
+              description: "Photo added to inspection report",
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+    toast.info("Photo removed");
+  };
+
+  const handleAddIssue = () => {
+    if (currentIssue.priority && currentIssue.description) {
+      setIssues(prev => [...prev, currentIssue]);
+      setCurrentIssue({ priority: "", description: "" });
+      toast.success("Issue logged!", {
+        description: "Issue added to inspection report",
+      });
+    } else {
+      toast.error("Please fill in all issue fields");
+    }
+  };
+
+  const removeIssue = (index: number) => {
+    setIssues(prev => prev.filter((_, i) => i !== index));
+    toast.info("Issue removed");
+  };
+
   const handleSubmit = () => {
+    const completedItems = Object.values(checklistItems).filter(Boolean).length;
     toast.success("Inspection submitted successfully!", {
-      description: "Report generated and saved offline for sync.",
+      description: `${completedItems} items checked, ${photos.length} photos, ${issues.length} issues logged`,
     });
     setTimeout(() => {
       navigate("/dashboard");
@@ -131,12 +180,49 @@ const MobileChecklist = () => {
             <Camera className="h-5 w-5 text-primary mr-2" />
             <h2 className="text-lg font-heading font-bold text-foreground">Photo Documentation</h2>
           </div>
-          <Button variant="outline" className="w-full">
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={handlePhotoCapture}
+          />
+          
+          <Button 
+            variant="outline" 
+            className="w-full"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Camera className="mr-2 h-4 w-4" />
-            Capture Photos
+            Capture/Upload Photos
           </Button>
+          
+          {photos.length > 0 && (
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {photos.map((photo, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={photo} 
+                    alt={`Captured ${index + 1}`} 
+                    className="w-full aspect-square object-cover rounded-lg border border-border"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removePhoto(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+          
           <p className="text-xs text-muted-foreground font-body mt-2">
-            0 photos captured
+            {photos.length} {photos.length === 1 ? 'photo' : 'photos'} captured
           </p>
         </Card>
 
@@ -144,23 +230,46 @@ const MobileChecklist = () => {
         <Card className="p-5 shadow-card animate-fade-in">
           <div className="flex items-center mb-4">
             <AlertCircle className="h-5 w-5 text-warning mr-2" />
-            <h2 className="text-lg font-heading font-bold text-foreground">Log Issue</h2>
+            <h2 className="text-lg font-heading font-bold text-foreground">Log Issues</h2>
           </div>
+          
+          {issues.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {issues.map((issue, index) => (
+                <div key={index} className="p-3 bg-muted rounded-lg border border-border">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <span className="text-xs font-semibold text-primary uppercase">{issue.priority} Priority</span>
+                      <p className="text-sm font-body text-foreground mt-1">{issue.description}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => removeIssue(index)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           
           <div className="space-y-4">
             <div>
               <label className="text-sm font-body font-medium text-foreground mb-2 block">
                 Priority
               </label>
-              <Select>
+              <Select value={currentIssue.priority} onValueChange={(value) => setCurrentIssue({...currentIssue, priority: value})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -173,8 +282,19 @@ const MobileChecklist = () => {
                 placeholder="Describe the issue..."
                 className="resize-none"
                 rows={4}
+                value={currentIssue.description}
+                onChange={(e) => setCurrentIssue({...currentIssue, description: e.target.value})}
               />
             </div>
+            
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleAddIssue}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Issue
+            </Button>
           </div>
         </Card>
 

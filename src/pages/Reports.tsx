@@ -46,7 +46,11 @@ const Reports = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge status={report.status} />
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/report/${report.id}`)}
+                  >
                     <Eye className="mr-2 h-4 w-4" />
                     View
                   </Button>
