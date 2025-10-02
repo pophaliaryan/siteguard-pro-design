@@ -5,7 +5,6 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Circle, Popup, useMap } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { useToast } from "@/hooks/use-toast";
 
 const sites = [

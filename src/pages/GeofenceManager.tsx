@@ -7,7 +7,6 @@ import { ArrowLeft, Plus, Trash2, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Circle, useMapEvents } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { useToast } from "@/hooks/use-toast";
 import { useRole } from "@/contexts/RoleContext";
 

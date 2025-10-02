@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ArrowLeft, Download, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Reports = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const allReports = [
     { id: 1, site: "Downtown Tower - Phase 2", date: "2025-09-28", status: "completed" as const, inspector: "John Smith" },
@@ -54,7 +56,16 @@ const Reports = () => {
                     <Eye className="mr-2 h-4 w-4" />
                     View
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: "Downloading Report",
+                        description: `Downloading ${report.site} report as PDF...`,
+                      });
+                    }}
+                  >
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
